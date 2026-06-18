@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Music Mate
 
-## Getting Started
+A self-hosted, no-account, no-tracking music & video downloader.
 
-First, run the development server:
+Paste a YouTube, Instagram, TikTok, SoundCloud, X, or 1,800+ other link. Choose your format. Get the file. Nothing leaves your machine except the fetch to the source platform.
+
+## Features
+
+- **Audio**: MP3 (128 / 192 / 320 kbps), M4A, Opus
+- **Video**: MP4, WebM up to 4K
+- **SponsorBlock**: auto-skip sponsors, intros, outros, self-promos on YouTube
+- **Playlists**: queue multiple URLs and download sequentially
+- **History**: local-only (localStorage, no server)
+- **Dark / light / system theme**
+- **No auth, no telemetry, no cloud**
+
+## Stack
+
+- Next.js 15 (App Router) + React 19 + TypeScript
+- Tailwind CSS v4
+- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) (CLI)
+- [`ffmpeg`](https://ffmpeg.org/) (post-processing)
+
+## Requirements
+
+- Node.js 18+
+- `yt-dlp` in PATH (`brew install yt-dlp` / `pip install yt-dlp` / etc.)
+- `ffmpeg` in PATH (`brew install ffmpeg`)
+
+## Quick start
 
 ```bash
+git clone https://github.com/gunawan/music-mate.git
+cd music-mate
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>. Override the port with `npm run dev -- -p 3847`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+Browser  ──HTTP──▶  Next.js API route  ──subprocess──▶  yt-dlp  ──▶  ffmpeg
+                                                               └────▶  tmp file
+                                                                            │
+Browser  ◀──ReadableStream─────────────────────────────────────────────────┘
+```
 
-## Learn More
+- `src/lib/yt-dlp.ts` — subprocess spawner, progress parser, metadata fetcher
+- `src/app/api/info` — `POST { url }` → JSON metadata
+- `src/app/api/download` — `POST { url, kind, format, … }` → binary stream
+- `src/app/api/health` — `GET` → version + reachability check
+- `src/app/page.tsx` — single-URL download flow
+- `src/app/queue/page.tsx` — batch URL queue
+- `src/app/history/page.tsx` — local-only history (localStorage)
 
-To learn more about Next.js, take a look at the following resources:
+## Why Next.js, not Flutter / native?
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Originally considered a native Android app (Flutter + bundled yt-dlp). It turned out `yt-dlp` is pure Python — bundling a Python runtime in an APK costs ~150MB and rebuilds per `yt-dlp` update. A self-hosted web app keeps the client tiny (~1MB) and updates instantly.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
