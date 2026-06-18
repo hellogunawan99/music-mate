@@ -2,9 +2,20 @@
 
 import * as React from "react";
 import { DownloaderCard, type DownloadPhase } from "@/components/downloader-card";
+import { BrandMark } from "@/components/brand-mark";
+import { useToast } from "@/components/ui/toast";
 import { downloadInBackground } from "@/lib/download";
 import { addHistoryEntry } from "@/lib/history";
 import type { MetadataResult } from "@/lib/yt-dlp";
+
+const PLATFORMS = [
+  { name: "YouTube", color: "bg-rose-600" },
+  { name: "Instagram", color: "bg-pink-600" },
+  { name: "TikTok", color: "bg-zinc-900 dark:bg-zinc-100" },
+  { name: "SoundCloud", color: "bg-orange-500" },
+  { name: "X", color: "bg-zinc-900 dark:bg-zinc-100" },
+  { name: "1,795 more", color: "bg-sunken border border-default text-fg" },
+];
 
 export default function HomePage() {
   const [url, setUrl] = React.useState("");
@@ -15,6 +26,7 @@ export default function HomePage() {
   const [videoMaxHeight, setVideoMaxHeight] = React.useState<720 | 1080 | 1440 | 2160>(1080);
   const [sponsorBlock, setSponsorBlock] = React.useState(false);
   const [phase, setPhase] = React.useState<DownloadPhase>({ kind: "idle" });
+  const toast = useToast();
 
   const handleSubmit = async () => {
     if (!url.trim()) return;
@@ -34,6 +46,12 @@ export default function HomePage() {
       setPhase({
         kind: "error",
         message: err instanceof Error ? err.message : String(err),
+      });
+      toast.show({
+        title: "Couldn't fetch metadata",
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+        duration: 5000,
       });
     }
   };
@@ -58,6 +76,12 @@ export default function HomePage() {
         kind: "complete",
         filename: result.filename,
         bytes: result.bytes,
+      });
+      toast.show({
+        title: "Downloaded",
+        description: result.filename,
+        variant: "success",
+        duration: 4000,
       });
 
       // Persist to history
@@ -84,41 +108,66 @@ export default function HomePage() {
         kind: "error",
         message: err instanceof Error ? err.message : String(err),
       });
+      toast.show({
+        title: "Download failed",
+        description: err instanceof Error ? err.message : String(err),
+        variant: "error",
+        duration: 6000,
+      });
     }
   };
 
   return (
-    <main className="flex-1 px-4 sm:px-6 py-8 sm:py-12">
-      <div className="max-w-3xl mx-auto mb-8 text-center">
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          Download audio &amp; video from anywhere
+    <main className="flex-1 px-4 sm:px-6 py-10 sm:py-16">
+      {/* Hero */}
+      <section className="max-w-3xl mx-auto text-center mb-10 sm:mb-14 fade-in-up">
+        <div className="inline-flex items-center justify-center mb-5">
+          <BrandMark size={56} withGlow />
+        </div>
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-fg leading-[1.1]">
+          Download audio &amp; video
+          <br className="hidden sm:block" /> from anywhere
         </h1>
-        <p className="mt-3 text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
-          Paste a YouTube, Instagram, TikTok, SoundCloud, X, or 1,800+ other links.
-          Choose your format. Get the file. No accounts, no tracking.
+        <p className="mt-4 text-base sm:text-lg text-fg-muted max-w-xl mx-auto leading-relaxed">
+          Paste a link. Pick a format. Get the file.
+          No accounts. No tracking. Runs on your machine.
         </p>
-      </div>
 
-      <DownloaderCard
-        url={url}
-        setUrl={setUrl}
-        kind={kind}
-        setKind={setKind}
-        audioFormat={audioFormat}
-        setAudioFormat={setAudioFormat}
-        videoFormat={videoFormat}
-        setVideoFormat={setVideoFormat}
-        audioQuality={audioQuality}
-        setAudioQuality={setAudioQuality}
-        videoMaxHeight={videoMaxHeight}
-        setVideoMaxHeight={setVideoMaxHeight as any}
-        sponsorBlock={sponsorBlock}
-        setSponsorBlock={setSponsorBlock}
-        phase={phase}
-        onSubmit={handleSubmit}
-        onReset={handleReset}
-        onDownloadFile={handleDownloadFile}
-      />
+        {/* Platform strip */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          {PLATFORMS.map((p) => (
+            <span
+              key={p.name}
+              className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium ${p.color} text-white`}
+            >
+              {p.name}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-3xl mx-auto fade-in-up" style={{ animationDelay: "60ms" }}>
+        <DownloaderCard
+          url={url}
+          setUrl={setUrl}
+          kind={kind}
+          setKind={setKind}
+          audioFormat={audioFormat}
+          setAudioFormat={setAudioFormat}
+          videoFormat={videoFormat}
+          setVideoFormat={setVideoFormat}
+          audioQuality={audioQuality}
+          setAudioQuality={setAudioQuality}
+          videoMaxHeight={videoMaxHeight}
+          setVideoMaxHeight={setVideoMaxHeight}
+          sponsorBlock={sponsorBlock}
+          setSponsorBlock={setSponsorBlock}
+          phase={phase}
+          onSubmit={handleSubmit}
+          onReset={handleReset}
+          onDownloadFile={handleDownloadFile}
+        />
+      </section>
     </main>
   );
 }

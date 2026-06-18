@@ -1,56 +1,276 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fafafa;
-  --foreground: #18181b;
-}
+/* ============================================================
+   Design tokens — class-based theming (controlled by the Nav
+   component via `light` / `dark` class on <html>). Light is
+   the default; dark is opt-in via the html.dark class. We don't
+   use a `prefers-color-scheme` media query here so that the user
+   override (e.g. system dark but user picked light) always wins.
+   ============================================================ */
+:root,
+html.light {
+  /* Surface scale */
+  --bg-base: #fafafa;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f4f4f5;
+  --bg-overlay: rgba(255, 255, 255, 0.7);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Text scale */
+  --fg-primary: #09090b;
+  --fg-secondary: #52525b;
+  --fg-tertiary: #a1a1aa;
+  --fg-on-accent: #ffffff;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-  }
-}
+  /* Border scale */
+  --border-subtle: rgba(9, 9, 11, 0.06);
+  --border-default: rgba(9, 9, 11, 0.10);
+  --border-strong: rgba(9, 9, 11, 0.16);
 
-html.dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-}
+  /* Accent */
+  --accent-50: #f5f3ff;
+  --accent-100: #ede9fe;
+  --accent-300: #c4b5fd;
+  --accent-500: #8b5cf6;
+  --accent-600: #7c3aed;
+  --accent-700: #6d28d9;
 
-html {
+  /* Status */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* Brand gradient */
+  --gradient-brand: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #ede9fe 0%, #fce7f3 50%, #fef3c7 100%);
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.40);
+  --glass-shadow: 0 1px 2px rgba(9, 9, 11, 0.04), 0 8px 24px -8px rgba(9, 9, 11, 0.10);
+
+  /* Animation */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
   color-scheme: light;
 }
 
 html.dark {
+  --bg-base: #09090b;
+  --bg-elevated: #18181b;
+  --bg-sunken: #0c0c0f;
+  --bg-overlay: rgba(9, 9, 11, 0.7);
+
+  --fg-primary: #fafafa;
+  --fg-secondary: #a1a1aa;
+  --fg-tertiary: #71717a;
+  --fg-on-accent: #ffffff;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --accent-50: #2e1065;
+  --accent-100: #4c1d95;
+  --accent-300: #a78bfa;
+  --accent-500: #8b5cf6;
+  --accent-600: #7c3aed;
+  --accent-700: #6d28d9;
+
+  --gradient-brand: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(244, 114, 182, 0.15) 50%, rgba(251, 191, 36, 0.15) 100%);
+
+  --glass-bg: rgba(24, 24, 27, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.20), 0 12px 32px -8px rgba(0, 0, 0, 0.40);
+
   color-scheme: dark;
 }
 
+/* ============================================================
+   Base
+   ============================================================ */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  background: var(--bg-base);
+  color: var(--fg-primary);
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Subtle scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--border-default);
   border-radius: 5px;
 }
-html.dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ============================================================
+   Selection
+   ============================================================ */
+::selection {
+  background: var(--accent-500);
+  color: var(--fg-on-accent);
+}
+
+/* ============================================================
+   Focus rings (a11y) — uniform across the app
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ============================================================
+   Utility classes — components use these instead of repeating
+   raw Tailwind everywhere
+   ============================================================ */
+@layer utilities {
+  .bg-base { background: var(--bg-base); }
+  .bg-elevated { background: var(--bg-elevated); }
+  .bg-sunken { background: var(--bg-sunken); }
+  .bg-overlay { background: var(--bg-overlay); }
+
+  .text-fg { color: var(--fg-primary); }
+  .text-fg-muted { color: var(--fg-secondary); }
+  .text-fg-subtle { color: var(--fg-tertiary); }
+
+  .border-subtle { border-color: var(--border-subtle); }
+  .border-default { border-color: var(--border-default); }
+  .border-strong { border-color: var(--border-strong); }
+
+  .gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .gradient-bg {
+    background: var(--gradient-brand);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: var(--bg-elevated);
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-brand);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Subtle hover lift on cards */
+  .card-hover {
+    transition: transform 200ms var(--ease-out),
+                border-color 200ms var(--ease-out),
+                box-shadow 200ms var(--ease-out);
+  }
+  .card-hover:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+  }
+
+  /* Shimmer animation for the progress bar */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.30) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.6s linear infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Page entrance */
+  .fade-in-up {
+    animation: fade-in-up 400ms var(--ease-out) both;
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Focus ring helper (skip when the element handles it itself) */
+  .focus-none:focus-visible { outline: none; }
+}
+
+/* ============================================================
+   Background "aurora" — subtle gradient blobs behind the hero
+   ============================================================ */
+.bg-aurora {
+  position: relative;
+  isolation: isolate;
+}
+.bg-aurora::before {
+  content: "";
+  position: absolute;
+  inset: -20% 0 auto 0;
+  height: 60%;
+  z-index: -1;
+  background:
+    radial-gradient(50% 50% at 20% 30%, var(--accent-300) 0%, transparent 60%),
+    radial-gradient(40% 40% at 80% 20%, #f472b6 0%, transparent 60%),
+    radial-gradient(50% 50% at 60% 60%, #fbbf24 0%, transparent 60%);
+  opacity: 0.18;
+  filter: blur(60px);
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  .bg-aurora::before {
+    opacity: 0.25;
+  }
+}
+html.dark .bg-aurora::before {
+  opacity: 0.22;
+}
+html.light .bg-aurora::before {
+  opacity: 0.18;
 }
