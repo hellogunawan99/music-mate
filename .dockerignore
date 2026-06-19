@@ -1,0 +1,53 @@
+# ============================================================
+# Music Mate — .dockerignore
+# ============================================================
+# Patterns that should NEVER end up in `docker build` context.
+# Most importantly: node_modules (rebuilt in-container), .next
+# (rebuilt in-container), and logs/secrets.
+
+# Dependencies (rebuilt inside the image)
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Build output (rebuilt in builder stage)
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.pem
+.idea
+.vscode
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+logs/
+
+# Local env files (NEVER commit secrets)
+.env
+.env*.local
+
+# Git
+.git
+.gitignore
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Documentation that's not needed in the image
+docs/screenshots/
+README.md

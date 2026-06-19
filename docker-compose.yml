@@ -1,0 +1,48 @@
+# ============================================================
+# Music Mate — Docker Compose (home-lab friendly)
+# ============================================================
+# Use:
+#   docker compose up -d          # start
+#   docker compose logs -f         # follow logs
+#   docker compose down            # stop
+#   docker compose pull && docker compose up -d  # update
+#
+# Image is expected to come from a registry (GHCR / Docker Hub).
+# If you want to build locally first, change `image:` to:
+#   build: .
+# and add a tag line.
+# ============================================================
+
+services:
+  music-mate:
+    image: ghcr.io/hellogunawan99/music-mate:latest
+    container_name: music-mate
+    restart: unless-stopped
+    ports:
+      # Map container :3000 to host :3847 to keep parity with dev
+      - "3847:3000"
+    environment:
+      NODE_ENV: production
+      # Optional: pin yt-dlp to a specific version (overrides the one
+      # baked into the image). Set to "latest" to always track upstream.
+      # YTDLP_VERSION: latest
+      # Where yt-dlp should look for the binary. Default: PATH
+      # YT_DLP_BIN: /usr/local/bin/yt-dlp
+    volumes:
+      # Persistent download directory. Maps to the host so downloads
+      # survive container restarts. If you don't need persistence,
+      # remove this and the container will use /tmp inside.
+      - ./downloads:/app/downloads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    # Resource limits — keeps a runaway yt-dlp from OOM'ing the host.
+    # 512MB / 1 CPU is plenty for personal use.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
