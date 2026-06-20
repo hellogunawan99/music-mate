@@ -51,3 +51,10 @@ next-env.d.ts
 # Documentation that's not needed in the image
 docs/screenshots/
 README.md
+# Deck (PowerPoint source — not needed in production image)
+docs/deck/slides/
+docs/deck/imgs/
+docs/deck/compile.js
+docs/deck/node_modules/
+docs/deck/output/
+docs/deck/package-lock.json
