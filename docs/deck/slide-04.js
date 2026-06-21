@@ -1,88 +1,77 @@
-// Slide 04 — The Solution (Music Mate in a nutshell)
+// Slide 04 — The Solution
+// Hero quote + 2x2 pillar grid.
+
+const { THEME, EX, TYPE, SP, addHeader, addPageBadge } = require("./tokens.js");
 
 function createSlide(pres, theme) {
   const slide = pres.addSlide();
   slide.background = { color: theme.bg };
 
-  // Eyebrow
-  slide.addText("THE SOLUTION", {
-    x: 0.5, y: 0.45, w: 4, h: 0.3,
-    fontSize: 11, fontFace: "Arial", color: theme.accent,
-    bold: true, charSpacing: 4
+  addHeader(slide, pres, theme, {
+    eyebrow: "THE SOLUTION",
+    title: "Music Mate, in one sentence",
   });
 
-  // Title
-  slide.addText("Music Mate, in one sentence", {
-    x: 0.5, y: 0.8, w: 9, h: 0.7,
-    fontSize: 32, fontFace: "Arial", color: theme.primary,
-    bold: true, align: "left"
-  });
-
-  // Hero quote / one-liner
+  // Hero quote band — full width, dark
   slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x: 0.5, y: 1.65, w: 9.0, h: 1.0,
+    x: SP.pageMargin, y: 1.95, w: 10 - 2 * SP.pageMargin, h: 1.15,
     fill: { color: theme.primary }, line: { color: theme.primary, width: 0 },
-    rectRadius: 0.1
+    rectRadius: 0.2,
   });
+  // Quote mark (decorative)
+  slide.addText("\u201C", {
+    x: SP.pageMargin + 0.3, y: 1.85, w: 0.5, h: 0.8,
+    fontSize: 60, fontFace: "Georgia", color: theme.accent, bold: true,
+  });
+  // Quote text
   slide.addText(
     "A self-hosted web app that streams audio & video from 1,800+ sites straight to your machine — no accounts, no cloud, no friction.",
     {
-      x: 0.7, y: 1.75, w: 8.6, h: 0.8,
-      fontSize: 16, fontFace: "Arial", color: "FFFFFF",
-      italic: true, align: "left", lineSpacingMultiple: 1.3
+      x: SP.pageMargin + 0.85, y: 2.05, w: 10 - 2 * SP.pageMargin - 1.0, h: 0.95,
+      fontSize: 16, fontFace: "Georgia", color: "FFFFFF", italic: true,
+      align: "left", valign: "middle", lineSpacingMultiple: 1.4,
     }
   );
 
-  // Four-pillar grid
+  // 2x2 pillar grid
   const pillars = [
-    { icon: "🔒", title: "Self-hosted", body: "Runs on your hardware. Your data never leaves." },
-    { icon: "⚡", title: "Zero friction", body: "Paste link → click. No signups. No captchas." },
-    { icon: "🎯", title: "All formats", body: "MP3 / M4A / Opus audio. MP4 / WebM up to 4K video." },
-    { icon: "🧠", title: "SponsorBlock", body: "Auto-skip sponsors, intros, outros on YouTube." },
+    { title: "Self-hosted",  body: "Runs on your hardware. Data never leaves." },
+    { title: "Zero friction", body: "Paste link → click. No signups, no captchas." },
+    { title: "All formats",  body: "MP3 / M4A / Opus · MP4 / WebM up to 4K." },
+    { title: "SponsorBlock", body: "Auto-skip sponsors, intros, outros." },
   ];
 
-  const pW = 2.15;
-  const pGap = 0.15;
-  const pX0 = 0.5;
-  const pY = 2.95;
-  const pH = 1.95;
+  const colW = (10 - 2 * SP.pageMargin - 0.3) / 2;
+  const rowH = 0.85;
+  const x0 = SP.pageMargin;
+  const y0 = 3.4;
 
   pillars.forEach((p, i) => {
-    const x = pX0 + i * (pW + pGap);
-    slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-      x: x, y: pY, w: pW, h: pH,
-      fill: { color: "FFFFFF" },
-      line: { color: "E8E8EC", width: 1 },
-      rectRadius: 0.1
-    });
-    // Use a colored dot as icon stand-in (no emoji rendering issues)
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = x0 + col * (colW + 0.3);
+    const y = y0 + row * (rowH + 0.15);
+
+    // Accent dot (left)
     slide.addShape(pres.shapes.OVAL, {
-      x: x + 0.25, y: pY + 0.25, w: 0.45, h: 0.45,
-      fill: { color: theme.accent }, line: { color: theme.accent, width: 0 }
+      x: x, y: y + 0.18, w: 0.18, h: 0.18,
+      fill: { color: theme.accent }, line: { color: theme.accent, width: 0 },
     });
+    // Title
     slide.addText(p.title, {
-      x: x + 0.25, y: pY + 0.85, w: pW - 0.5, h: 0.35,
-      fontSize: 14, fontFace: "Arial", color: theme.primary,
-      bold: true, align: "left"
+      x: x + 0.35, y: y, w: colW - 0.4, h: 0.4,
+      fontSize: TYPE.cardTitle, fontFace: "Arial", color: theme.primary,
+      bold: true, valign: "middle",
     });
+    // Body
     slide.addText(p.body, {
-      x: x + 0.25, y: pY + 1.2, w: pW - 0.5, h: 0.7,
-      fontSize: 11, fontFace: "Arial", color: theme.secondary,
-      align: "left", lineSpacingMultiple: 1.3
+      x: x + 0.35, y: y + 0.4, w: colW - 0.4, h: 0.4,
+      fontSize: TYPE.body, fontFace: "Arial", color: theme.secondary,
+      valign: "top",
     });
   });
 
-  // Page badge
-  slide.addShape(pres.shapes.OVAL, {
-    x: 9.3, y: 5.1, w: 0.4, h: 0.4,
-    fill: { color: theme.accent }, line: { color: theme.accent, width: 0 }
-  });
-  slide.addText("4", {
-    x: 9.3, y: 5.1, w: 0.4, h: 0.4,
-    fontSize: 12, fontFace: "Arial", color: "FFFFFF",
-    bold: true, align: "center", valign: "middle"
-  });
-
+  addPageBadge(slide, pres, theme, 4);
   return slide;
 }
 

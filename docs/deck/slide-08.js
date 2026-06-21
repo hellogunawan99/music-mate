@@ -1,87 +1,83 @@
-// Slide 08 — UI showcase (hero with 3D equalizer)
+// Slide 08 — UI: 3D Hero
+// Big image on the left, content panel on the right.
+
+const { THEME, EX, TYPE, SP, addHeader, addPageBadge } = require("./tokens.js");
 
 function createSlide(pres, theme) {
   const slide = pres.addSlide();
   slide.background = { color: theme.bg };
 
-  slide.addText("UI & 3D SCENE", {
-    x: 0.5, y: 0.45, w: 4, h: 0.3,
-    fontSize: 11, fontFace: "Arial", color: theme.accent,
-    bold: true, charSpacing: 4
+  addHeader(slide, pres, theme, {
+    eyebrow: "UI · 3D SCENE",
+    title: "Hero with animated equalizer",
   });
 
-  slide.addText("Hero with animated equalizer", {
-    x: 0.5, y: 0.8, w: 9, h: 0.7,
-    fontSize: 30, fontFace: "Arial", color: theme.primary,
-    bold: true, align: "left"
-  });
+  // Big screenshot — takes 60% of the slide width
+  const imgX = SP.pageMargin;
+  const imgY = 1.85;
+  const imgW = 5.6;
+  const imgH = 3.15;
 
-  slide.addShape(pres.shapes.RECTANGLE, {
-    x: 0.5, y: 1.6, w: 0.6, h: 0.06,
-    fill: { color: theme.accent }, line: { color: theme.accent, width: 0 }
-  });
-
-  // Big screenshot — full bleed
+  // Frame
   slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x: 0.5, y: 1.85, w: 6.5, h: 3.1,
-    fill: { color: "09090B" },
-    line: { color: "E8E8EC", width: 1 },
-    rectRadius: 0.1
+    x: imgX, y: imgY, w: imgW, h: imgH,
+    fill: { color: theme.primary }, line: { color: EX.line, width: 1 },
+    rectRadius: 0.2,
   });
+  // Image
   slide.addImage({
     path: "./imgs/hero.png",
-    x: 0.55, y: 1.9, w: 6.4, h: 3.0,
-    sizing: { type: "cover", w: 6.4, h: 3.0 }
+    x: imgX + 0.05, y: imgY + 0.05, w: imgW - 0.1, h: imgH - 0.1,
+    sizing: { type: "cover", w: imgW - 0.1, h: imgH - 0.1 },
   });
 
-  // Right column — three.js detail
-  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x: 7.2, y: 1.85, w: 2.3, h: 3.1,
-    fill: { color: "FFFFFF" },
-    line: { color: "E8E8EC", width: 1 },
-    rectRadius: 0.1
-  });
+  // Right panel — title + bullets
+  const panelX = imgX + imgW + 0.3;
+  const panelW = 10 - SP.pageMargin - panelX;
+
+  // Section title
   slide.addText("Three.js", {
-    x: 7.4, y: 2.0, w: 2.0, h: 0.4,
-    fontSize: 16, fontFace: "Arial", color: theme.primary,
-    bold: true
+    x: panelX, y: imgY + 0.1, w: panelW, h: 0.4,
+    fontSize: TYPE.subtitle, fontFace: "Arial", color: theme.primary,
+    bold: true,
   });
+
+  // Sub-line
   slide.addText("64 instanced bars", {
-    x: 7.4, y: 2.4, w: 2.0, h: 0.3,
-    fontSize: 11, fontFace: "Arial", color: theme.accent, bold: true
+    x: panelX, y: imgY + 0.5, w: panelW, h: 0.3,
+    fontSize: TYPE.body, fontFace: "Arial", color: theme.accent, bold: true,
   });
-  // Detail bullets
+
+  // Divider
+  slide.addShape(pres.shapes.LINE, {
+    x: panelX, y: imgY + 0.95, w: panelW, h: 0,
+    line: { color: EX.line, width: 1 },
+  });
+
+  // Bullets — clean list, no decorative dots
   const bullets = [
-    "InstancedMesh = 1 draw call",
-    "Vertex colors w/ gradient",
-    "Wave shader background",
-    "Camera parallax sway",
+    "InstancedMesh = single draw call",
+    "Vertex colors with gradient palette",
+    "Custom GLSL wave shader",
+    "Subtle camera parallax",
     "prefers-reduced-motion respected",
-    "Lazy-loaded (main bundle stays light)",
+    "Lazy-loaded via dynamic import",
   ];
   bullets.forEach((b, i) => {
-    const y = 2.85 + i * 0.32;
-    slide.addShape(pres.shapes.OVAL, {
-      x: 7.4, y: y + 0.07, w: 0.1, h: 0.1,
-      fill: { color: theme.accent }, line: { color: theme.accent, width: 0 }
+    const y = imgY + 1.15 + i * 0.32;
+    // Small accent dash instead of circle
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x: panelX, y: y + 0.1, w: 0.12, h: 0.04,
+      fill: { color: theme.accent }, line: { color: theme.accent, width: 0 },
     });
     slide.addText(b, {
-      x: 7.6, y: y, w: 1.85, h: 0.25,
-      fontSize: 10, fontFace: "Arial", color: theme.secondary
+      x: panelX + 0.25, y: y, w: panelW - 0.25, h: 0.3,
+      fontSize: TYPE.body, fontFace: "Arial", color: theme.secondary,
+      valign: "top",
     });
   });
 
-  // Page badge
-  slide.addShape(pres.shapes.OVAL, {
-    x: 9.3, y: 5.1, w: 0.4, h: 0.4,
-    fill: { color: theme.accent }, line: { color: theme.accent, width: 0 }
-  });
-  slide.addText("8", {
-    x: 9.3, y: 5.1, w: 0.4, h: 0.4,
-    fontSize: 12, fontFace: "Arial", color: "FFFFFF",
-    bold: true, align: "center", valign: "middle"
-  });
-
+  addPageBadge(slide, pres, theme, 8);
   return slide;
 }
 
